@@ -21,3 +21,9 @@ plot(loan.tree, col=8)
 text(loan.tree, digits=2,pretty=TRUE)
 title("Loan Rates Tree - Unpruned")
 # dev.off()
+
+# Try to see if we can induce a more complex tree
+loan.tree.2 <- tree(int_rate ~.-addr_state, data=loanstats, mindev=0.005)
+# type = uniform sets the branch height to be the same for each step
+plot(loan.tree.2, col=8,type="uniform")
+text(loan.tree.2, digits=2,pretty=TRUE)
