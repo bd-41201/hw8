@@ -30,3 +30,21 @@ plot(loan.tree.2, col=8,type="uniform")
 text(loan.tree.2, digits=2,pretty=TRUE)
 title("Loan Rates Tree (Complex)- Unpruned")
 # dev.off()
+
+## Use cross-validation to prune the tree
+loan.tree.2.cv <- cv.tree(loan.tree.2, K=100)
+# Show the output of running cross validation on the tree
+loan.tree.2.cv$size
+loan.tree.2.cv$dev
+# It appears that the minimum OOS deviance occurs at a size of 6 leaves and does
+# not improve for additional leaves
+# Confirm with a plot
+# png('oos_deviance_plot.png')
+plot(loan.tree.2.cv, pch=21, bg=8, type="p", cex=1.5)
+
+# Prune the complex tree by passing paramete best=6 and plot
+loan.tree.2.cut <- prune.tree(loan.tree.2, best=6)
+# png('loanstats_tree_pruned.png')
+plot(loan.tree.2.cut, col=8)
+text(loan.tree.2.cut, digits=2, pretty=TRUE)
+# dev.off()
