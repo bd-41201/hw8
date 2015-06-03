@@ -48,3 +48,31 @@ loan.tree.2.cut <- prune.tree(loan.tree.2, best=6)
 plot(loan.tree.2.cut, col=8)
 text(loan.tree.2.cut, digits=2, pretty=TRUE)
 # dev.off()
+
+## Q2 - Perform a random forest analysis on the same data
+library(randomForest)
+loanstats.rf <- randomForest(y=loanstats$int_rate, x=loanstats[,c(1:2,4:9,11:18)], ntree=250, nodesize=1000, importance=TRUE)
+## variable importance plot. Add type=1 to plot % contribution to MSE
+# png('rf_variable_importance.png')
+varImpPlot(loanstats.rf,  type=1, pch=21, bg="navy", main='RF variable importance')
+
+# Plot of predictive performance for tree vs random forest
+MSE <- list(CART=NULL, RF=NULL)
+for(i in 1:10){
+  train <- sample(1:nrow(loanstats), 5000)
+
+  rt <- tree(int_rate ~.-addr_state, data=loanstats[train,])
+  yhat.rt <- predict(rt, newdata=loanstats[-train,])
+  MSE$CART <- c( MSE$CART, var(loanstats$int_rate[-train] - yhat.rt))
+
+  rf <- randomForest(y=loanstats$int_rate[train],x=loanstats[train,c(1:2,4:9,11:18)], ntree=250, nodesize=1000)
+  yhat.rf <- predict(rf, newdata=loanstats[-train,c(1:2,4:9,11:18)])
+  MSE$RF <- c( MSE$RF, var(loanstats$int_rate[-train] - yhat.rf) )
+
+  cat(i)
+}
+
+# Plot the results
+# png('cart_vs_rf_mse.png')
+boxplot(MSE, col=rainbow(2), xlab="model", ylab="MSE")
+# dev.off()
